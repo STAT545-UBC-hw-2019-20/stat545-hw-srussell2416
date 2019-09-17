@@ -1,0 +1,64 @@
+---
+title: "hw01_gapminder"
+output:
+  html_document:
+    toc: true
+    number_sections: true
+    theme: cerulean
+---
+```{r, echo=FALSE}
+library(gapminder)
+library(ggplot2)
+```
+# Summary Statistics
+```{r}
+summary(gapminder)
+```
+
+# PDFs by Continent {.tabset}
+
+## Life Expectancy
+```{r}
+ggplot(gapminder, aes(x = lifeExp)) +
+  geom_density() +
+  facet_grid(continent ~ .)
+```
+
+## Gross Domestic Product
+```{r, warning=FALSE}
+ggplot(gapminder, aes(x = gdpPercap)) +
+  geom_density() +
+  facet_grid(continent ~ .) +
+  xlim(c(0,45000))
+```
+
+## Population
+```{r, warning=FALSE}
+ggplot(gapminder, aes(x = pop)) +
+  geom_density() +
+  facet_grid(continent ~ .) +
+  xlim(c(0, 100000000))
+```
+
+
+# Smooth curves {.tabset}
+
+## Life Expectancy over time
+```{r}
+ggplot(gapminder, aes(year, lifeExp)) +
+  geom_smooth(aes(color = continent))
+```
+
+## Population over Time
+
+```{r}
+ggplot(gapminder, aes(year, pop)) +
+  geom_smooth(aes(color = continent))
+```
+
+## Gross Domestic Product over time
+
+```{r}
+ggplot(gapminder, aes(year, gdpPercap)) +
+  geom_smooth(aes(color = continent))
+```
