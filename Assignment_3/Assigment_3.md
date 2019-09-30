@@ -40,7 +40,7 @@ gapminder %>%
   theme_bw()
 ```
 
-![](Assigment_3_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](unnamed-chunk-2-1.png)<!-- -->
 
 # Task 3: Spread of GDP per Capita within Continents
 
@@ -81,7 +81,7 @@ gapminder %>%
 
     ## Picking joint bandwidth of 0.0962
 
-![](Assigment_3_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](unnamed-chunk-3-1.png)<!-- -->
 
 # Task 5: Change in Life Expectancy over Time by Continent
 
@@ -124,7 +124,7 @@ gapminder %>%
 
     ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
 
-![](Assigment_3_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](unnamed-chunk-4-1.png)<!-- -->
 
 # Cheat Sheet Comments
 
