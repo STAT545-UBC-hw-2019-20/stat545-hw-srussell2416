@@ -4,7 +4,7 @@ This is where I'll submit all my homework files for __STAT 545, Winter Term 1, 2
 
 ### Homework Directory
 
-[Assignment 3](https://github.com/STAT545-UBC-hw-2019-20/stat545-hw-srussell2416/blob/master/Assignment_3/Assigment_3.html)
+[Assignment 3](https://github.com/STAT545-UBC-hw-2019-20/stat545-hw-srussell2416/blob/master/Assignment_3/Assigment_3/html/)
 
 ### About Me
 ```R
