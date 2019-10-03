@@ -1,0 +1,138 @@
+---
+title: "Assignment_4"
+output: 
+  html_document:
+    toc: TRUE
+    number_sections: TRUE
+    theme: paper
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message = FALSE, warning = FALSE}
+library(gapminder)
+library(tidyverse)
+```
+
+# Univariate Option 1
+
+## Make a tibble with one row per year, and columns for life expectancy for two or more countries.
+
+```{r}
+gapminder %>%
+  select(year, lifeExp, country) %>%
+  filter(country == "Cambodia" | country == "Vietnam" | country == "Thailand") %>%
+  pivot_wider(names_from = country,
+              values_from = lifeExp) %>%
+  DT::datatable()
+```
+
+## Take advantage of this new data shape to scatterplot life expectancy for one country against that of another.
+
+```{R}
+gapminder %>%
+  select(year, lifeExp, country) %>%
+  filter(country == "Cambodia" | country == "Vietnam" | country == "Thailand") %>%
+  pivot_wider(names_from = country,
+              values_from = lifeExp) %>%
+  ggplot(aes(x = Cambodia, y = Vietnam)) +
+    geom_point() +
+    xlab(label = "Average Life Expectancy in Cambodia") +
+    ylab(label = "Average Life Expectancy in Vietnam") +
+    theme_bw()
+```
+
+The two are directly proportional except for two outlier years during which Cambodia had a much lower life expectancy than did Vietnam.
+
+## Re-lengthen the data.
+
+```{r}
+gapminder %>%
+  select(year, lifeExp, country) %>%
+  filter(country == "Cambodia" | country == "Vietnam" | country == "Thailand") %>%
+  pivot_wider(names_from = country,
+              values_from = lifeExp) %>%
+  pivot_longer(cols = c(Cambodia, Vietnam, Thailand),
+               names_to = "country",
+               values_to = "lifeExp") %>%
+  DT::datatable()
+```
+
+The table is returned to its original length.
+
+# Multivariate Option 1
+
+## Make a tibble with one row per year, and columns for life expectancy and GDP per capita (or two other numeric variables) for two or more countries.
+
+```{r}
+gapminder %>%
+  select(year, country, lifeExp, gdpPercap) %>%
+  filter(country == "Brazil" | country == "Colombia") %>%
+  pivot_wider(names_from = c(country),
+              names_sep = "_",
+              values_from = c(lifeExp, gdpPercap)) %>%
+  DT::datatable()
+  
+```
+
+## Re-lengthen the data.
+
+```{r}
+gapminder %>%
+  select(year, country, lifeExp, gdpPercap) %>%
+  filter(country == "Brazil" | country == "Colombia") %>%
+  pivot_wider(names_from = c(country),
+              names_sep = "_",
+              values_from = c(lifeExp, gdpPercap)) %>%
+  pivot_longer(cols = -year,
+               names_to = c(".value", "country"),
+               names_sep = "_") %>%
+  DT::datatable()
+```
+
+The table is returned to it's original length.
+
+# Table Joins
+
+```{r}
+guest <- read_csv("https://raw.githubusercontent.com/STAT545-UBC/Classroom/master/data/wedding/attend.csv")
+email <- read_csv("https://raw.githubusercontent.com/STAT545-UBC/Classroom/master/data/wedding/emails.csv")
+```
+
+## For each guest in the guestlist (guest tibble), add a column for email address, which can be found in the email tibble.
+
+```{r}
+email %>%
+  separate_rows(guest, sep = ", ") %>%
+  rename(name = guest) %>%
+  right_join(guest, by = "name") %>%
+  DT::datatable()
+  
+```
+
+## Who do we have emails for, yet are not on the guestlist?
+
+```{r}
+
+email %>%
+  separate_rows(guest, sep = ", ") %>%
+  rename(name = guest) %>%
+  anti_join(guest) %>%
+  knitr::kable()
+
+```
+
+We have emails for Turner Jones, Albert Marshall, and Vivian Marshall, but they are not on the guest list.
+
+## Make a guestlist that includes everyone we have emails for (in addition to those on the original guestlist).
+
+```{r}
+email %>%
+  separate_rows(guest, sep = ", ") %>%
+  rename(name = guest) %>%
+  full_join(guest, by = "name") %>%
+  DT::datatable()
+```
+
+This table includes everyone we have emails for as well as everyone on the original guestlist.
