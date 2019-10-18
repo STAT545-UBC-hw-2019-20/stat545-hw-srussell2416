@@ -6,6 +6,7 @@ This is where I'll submit all my homework files for __STAT 545, Winter Term 1, 2
 
 * [Assignment 3](https://stat545-ubc-hw-2019-20.github.io/stat545-hw-srussell2416/Assignment_3/Assigment_3.html)
 * [Assignment 4](https://stat545-ubc-hw-2019-20.github.io/stat545-hw-srussell2416/Assignment_4/Assignment_4.html)
+* [Assignment 5](https://stat545-ubc-hw-2019-20.github.io/stat545-hw-srussell2416/Assignment_5/Assignment_5.html)
 
 ### About Me
 ```R
