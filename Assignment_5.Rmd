@@ -1,0 +1,190 @@
+---
+title: "Assignment 5"
+output:
+  html_document:
+    number_sections: yes
+    theme: paper
+    toc: yes
+---
+
+```{r, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(forcats)
+library(gapminder)
+library(ggridges)
+library(scales)
+library(gridExtra)
+```
+
+# Explain the value of the here::here package
+
+* The here() function in the here package helps you specify a file path without using syntax that may not work in other operating systems. Specifically, "/" is used to separate path folders in MacOS while "\" is used in Windows. This makes your R code more reproducable and transferable, which is good for collaboration and great when making your code open source. 
+* It also allows you to specify paths outside of your current working directory as long as you're working within a project.
+
+# Factor management 
+
+## Gapminder before removing Oceania
+
+```{r}
+gapminder$continent %>%
+  nlevels()
+```
+The continent variable has five levels.
+
+```{r}
+nrow(gapminder)
+```
+The gapminder dataset has 1704 entries in total. In the plot below you can see that Oceania is one of the continent categories.
+
+```{r}
+gapminder %>%
+  ggplot() +
+  geom_boxplot(aes(continent, gdpPercap)) +
+  coord_flip()+
+  theme_bw() +
+  xlab("Continent")+
+  ylab("GDP Per Capita") 
+```
+
+## Gapminder after removing Oceania
+
+Here I filter out Oceania and drop all unused levels.
+```{r}
+gapdrop <- gapminder %>%
+  filter(continent != "Oceania") %>%
+  droplevels()
+```
+
+Oceania is no longer represented in the boxplot.
+```{r}
+gapdrop %>%
+  ggplot() +
+  geom_boxplot(aes(continent, gdpPercap)) +
+  coord_flip()+
+  theme_bw() +
+  xlab("Continent")+
+  ylab("GDP Per Capita") 
+```
+
+```{r}
+gapdrop$continent %>%
+  nlevels()
+nrow(gapdrop)
+```
+Now there are only 4 continent levels and 1680 rows in total.
+
+Here I rearrange the continent levels by increasing spread (standard deviation) in GDP per capita.
+```{r}
+gapdrop %>%
+  ggplot() +
+  geom_boxplot(aes(fct_reorder(continent, gdpPercap, sd), gdpPercap)) +
+  coord_flip()+
+  theme_bw() +
+  xlab("Continent")+
+  ylab("GDP Per Capita") +
+  labs(title = "Countries that start with B")
+```
+
+# File I/O
+
+```{r}
+library(here)
+
+countries <- levels(gapminder$country) %>%
+  tidyselect::vars_select(starts_with("B"))
+
+ gapminder %>%
+  filter(country %in% countries) %>%
+  group_by(continent) %>%
+   write.csv(here("Bcountries.csv"))
+
+```
+Here I filter the gapminder dataset to include only countries that start with the letter B (i.e. Brazil, Bulgaria, etc) and save it to a csv.
+
+```{r}
+bcountries <- read.csv(here("Bcountries.csv")) %>%
+  select(-X)
+```
+After reading the csv back into R, there is a new column named 'X' that contains the row index number. This must have been created when I wrote the data to csv. It is useless in R, so I remove it here.
+
+Here's a plot of the populations in the new dataset. I ordered the continents by their mean population, but it didn't look good, so I then reversed the order.
+```{r}
+ggplot(bcountries) +
+  geom_density_ridges(aes(pop/1000000,fct_rev(fct_reorder(continent, pop, mean)))) +
+  theme_bw() +
+  scale_x_continuous(labels = comma_format()) +
+  xlab("Population (millions)") +
+  ylab("Continent")
+```
+
+
+# Visualization design
+
+Old plot:
+```{r}
+p1 <- gapminder %>%
+ggplot(aes(x = pop, y = lifeExp, color = country, alpha = year)) +
+  scale_x_continuous(trans= "log10") +
+  facet_grid(gapminder$continent) +
+  geom_point() +
+  theme(legend.position = "none")
+```
+
+Revised plot:
+```{r}
+p2 <- gapminder %>%
+  group_by(country, continent) %>%
+  summarize(pop = mean(pop), lifeExp = mean(lifeExp)) %>%
+  ungroup() %>%
+ggplot(aes(x = pop/1000000, y = lifeExp, color = continent)) +
+  scale_x_log10(labels = comma_format()) +
+  labs(title = "1952-2007",
+       x = "Average Population (millions)",
+       y = "Average Life Expectancy (years)",
+       color = "Continent") +
+  geom_point(alpha = 0.7, size = 0.7) +
+  geom_smooth(method = "lm", se = F) +
+  theme_bw() +
+  theme(legend.key.width = unit(0.05, "cm"),
+        legend.text = element_text(size = 10))
+```
+
+Used grid.arrange() to create side-by-side comparison:
+```{r, fig.height = 3, fig.width = 9}
+grid.arrange(p1, p2, nrow = 1)
+```
+
+On the left is a plot I made in Assignment 2. Even though I think all the dots look like fireworks, it is not very informative. The labels do not explain what you're looking at. Using alpha to represent years is pobably not a good idea. There were too many countries to represent in a legend, so I just removed it. That might be ok if this was an interactive plotly graph, but it is not good for a normal ggplot.
+
+On the right is a revised version of this plot.
+
+Improvements
+
+* Removed gray background
+* Reduced number of points by averaging over years
+* Added better axis, title, and legend labels
+* Removed faceting for better intercontinental comparison
+* Decreased size and alpha of points to icrease clarity
+* Added linear trend lines to highlight possible relationships/interactions
+
+# Writing Figures to File
+
+```{r}
+p <- gapdrop %>%
+  ggplot() +
+  geom_boxplot(aes(fct_reorder(continent, gdpPercap, sd), gdpPercap)) +
+  coord_flip()+
+  theme_bw() +
+  xlab("Continent")+
+  ylab("GDP Per Capita") +
+  labs(title = "Countries that start with B")
+
+ggsave("bcountries_plot.png", 
+       device = "png", 
+       plot = p, 
+       path = here())
+```
+
+I don't know how to control the size of this figure!
+
+![](/Users/sjr/bcountries_plot.png)
